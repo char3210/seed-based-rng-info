@@ -1,5 +1,4 @@
-let currseed = 0n
-let gold = 1
+const DEFAULT_SEED = '16796183546'
 
 const seedinput = document.getElementById("seed")
 const goldinput = document.getElementById("goldinput")
@@ -7,6 +6,9 @@ const goldslider = document.getElementById("goldslider")
 const itemsout = document.getElementById("items")
 
 let entries
+
+let currseed = BigInt(DEFAULT_SEED)
+let gold = 1
 
 seedinput.addEventListener('input', () => {
     const tempseed = parseLong(seedinput.value)
@@ -41,6 +43,17 @@ goldslider.addEventListener('input', () => {
 })
 
 async function load() {
+    clearInputs()
+    await fetchBarterTable()
+}
+
+function clearInputs() {
+    seedinput.value = DEFAULT_SEED
+    goldinput.value = '1'
+    goldslider.value = '1'
+}
+
+async function fetchBarterTable() {
     const response = await fetch('piglin_bartering.json')
     const bartering_table = await response.json()
     entries = bartering_table["pools"][0]["entries"]
@@ -50,8 +63,6 @@ async function load() {
 }
 
 function refreshSeed() {
-    document.getElementById("text").textContent = "Seed: " + currseed
-
     refreshGold()
 }
 
