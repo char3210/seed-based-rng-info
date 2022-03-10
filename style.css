@@ -5,11 +5,18 @@
     text-align: center;
 }
 
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
 .section {
     width: 30%;
-    background-color: #ffffaa;
-    border: 2px solid black;
+    height: min-content;
+    background-color: #b1ffd8;
     border-radius: 20px;
+    box-shadow: 2px 2px 5px gray;
 }
 
 table, th, td {
