@@ -1,3 +1,5 @@
+"use strict";
+
 const DEFAULT_SEED = '16796183546'
 
 const seedinput = document.getElementById("seed")
@@ -57,7 +59,7 @@ async function fetchBarterTable() {
     const response = await fetch('piglin_bartering.json')
     const bartering_table = await response.json()
     entries = bartering_table["pools"][0]["entries"]
-    for (entry of entries) {
+    for (let entry of entries) {
         entry["weight"] = BigInt(entry["weight"])
     }
 }
@@ -76,7 +78,7 @@ function refreshGold() {
     }
 
     itemsout.innerHTML = ''
-    for (item in res) {
+    for (let item in res) {
         const row = document.createElement('tr')
         const itemdisp = document.createElement('td')
         const amountdisp = document.createElement('td')
@@ -91,7 +93,7 @@ function refreshGold() {
 function getNextBarter(random) {
     const res = {}
     let j = random.nextInt(423n)
-    for (entry of entries) {
+    for (let entry of entries) {
         if ((j -= entry['weight']) >= 0) continue;
         let amount = getAmount(entry, random)
         return {'item': entry.name, 'amount': amount}
@@ -103,7 +105,7 @@ function getAmount(entry, random) {
     let amount = 1
     const functions = entry.functions
     if (functions != null) {
-        for (f of functions) {
+        for (let f of functions) {
             if (f.function == "minecraft:set_count") {
                 amount = helperNextInt(random, BigInt(f.count.min), BigInt(f.count.max)) //UniformLootTableRange.java:50
             } else if(f.function == "minecraft:enchant_randomly") {

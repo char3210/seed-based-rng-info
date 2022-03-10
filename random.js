@@ -1,3 +1,5 @@
+"use strict";
+
 const multiplier = 0x5DEECE66Dn
 const addend = 0xBn
 const mask = (1n << 48n) - 1n
