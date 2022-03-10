@@ -2,10 +2,11 @@ let currseed = 0n
 let gold = 1
 
 const seedinput = document.getElementById("seed")
-const goldinput = document.getElementById("gold")
+const goldinput = document.getElementById("goldinput")
+const goldslider = document.getElementById("goldslider")
 const itemsout = document.getElementById("items")
 
-let bartering_table
+let entries
 
 seedinput.addEventListener('input', () => {
     const tempseed = parseLong(seedinput.value)
@@ -24,12 +25,28 @@ goldinput.addEventListener('input', () => {
     }
 
     gold = tempgold
+    goldslider.value = Math.min(Math.max(gold, goldslider.min), goldslider.max);
+    refreshGold()
+})
+
+goldslider.addEventListener('input', () => {
+    const tempgold = parseInt(goldslider.value)
+    if (isNaN(tempgold) || tempgold > 500 || tempgold < 1) {
+        return
+    }
+
+    gold = tempgold
+    goldinput.value = goldslider.value
     refreshGold()
 })
 
 async function load() {
-    const response = await fetch('https://raw.githubusercontent.com/qwertyuioplkjhgfd/seed-cycle-info/main/piglin_bartering.json')
-    bartering_table = await response.json()
+    const response = await fetch('piglin_bartering.json')
+    const bartering_table = await response.json()
+    entries = bartering_table["pools"][0]["entries"]
+    for (entry of entries) {
+        entry["weight"] = BigInt(entry["weight"])
+    }
 }
 
 function refreshSeed() {
@@ -62,8 +79,29 @@ function refreshGold() {
 
 function getNextBarter(random) {
     const res = {}
-    const entries = bartering_table["pools"]["entries"]
-    console.log(entries)
+    let j = random.nextInt(423n)
+    for (entry of entries) {
+        if ((j -= entry['weight']) >= 0) continue;
+        let amount = getAmount(entry, random)
+        return {'item': entry.name, 'amount': amount}
+    }
+    return res
+}
+
+function getAmount(entry, random) {
+    let amount = 1
+    const functions = entry.functions
+    if (functions != null) {
+        for (f of functions) {
+            if (f.function == "minecraft:set_count") {
+                amount = helperNextInt(random, BigInt(f.count.min), BigInt(f.count.max)) //UniformLootTableRange.java:50
+            } else if(f.function == "minecraft:enchant_randomly") {
+                random.nextInt(1n) //EnchantRandomlyLootFunction.java:68
+                helperNextInt(random, 1n, 3n) //EnchantRandomlyLootFunction.java:74 soul speed is 1 to 3
+            }
+        }
+    }
+    return amount
 }
 
 function add(object, key, value) {
@@ -72,6 +110,13 @@ function add(object, key, value) {
     } else {
         object[key] = value
     }
+}
+
+function helperNextInt(random, min, max) {
+    if (min >= max) {
+        return min
+    }
+    return random.nextInt(max - min + 1n) + min
 }
 
 function parseLong(str) {
