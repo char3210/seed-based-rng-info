@@ -12,15 +12,23 @@ const WHITELISTED_ITEMS = [
 ]
 
 const seedinput = document.getElementById("seed")
+
 const goldinput = document.getElementById("goldinput")
 const goldslider = document.getElementById("goldslider")
 const filter = document.getElementById("filter")
-const itemsout = document.getElementById("items")
+const bartersout = document.getElementById("items")
+
+const blazeinput = document.getElementById("blazeinput")
+const blazeslider = document.getElementById("blazeslider")
+const blazeout = document.getElementById("rods")
+
+const flint = document.getElementById("flint")
 
 let entries
 
 let currseed = BigInt(DEFAULT_SEED)
 let gold = 1
+let blaze = 1
 
 seedinput.addEventListener('input', () => {
     const tempseed = parseLong(seedinput.value)
@@ -34,7 +42,7 @@ seedinput.addEventListener('input', () => {
 
 goldinput.addEventListener('input', () => {
     const tempgold = parseInt(goldinput.value)
-    if (isNaN(tempgold) || tempgold > 500 || tempgold < 1) {
+    if (isNaN(tempgold) || tempgold > 500 || tempgold < 0) {
         return
     }
 
@@ -45,7 +53,7 @@ goldinput.addEventListener('input', () => {
 
 goldslider.addEventListener('input', () => {
     const tempgold = parseInt(goldslider.value)
-    if (isNaN(tempgold) || tempgold > 500 || tempgold < 1) {
+    if (isNaN(tempgold) || tempgold > 500 || tempgold < 0) {
         return
     }
 
@@ -58,15 +66,40 @@ filter.addEventListener('input', () => {
     refreshGold()
 })
 
+blazeinput.addEventListener('input', () => {
+    const tempblaze = parseInt(blazeinput.value)
+    if (isNaN(tempblaze) || tempblaze > 500 || tempblaze < 0) {
+        return
+    }
+
+    blaze = tempblaze
+    blazeslider.value = Math.min(Math.max(blaze, blazeslider.min), blazeslider.max)
+    refreshBlaze()
+})
+
+blazeslider.addEventListener('input', () => {
+    const tempblaze = parseInt(blazeslider.value)
+    if (isNaN(tempblaze) || tempblaze > 500 || tempblaze < 0) {
+        return
+    }
+
+    blaze = tempblaze
+    blazeinput.value = blaze
+    refreshBlaze()
+})
+
 async function load() {
     clearInputs()
     await fetchBarterTable()
+    refreshSeed()
 }
 
 function clearInputs() {
     seedinput.value = DEFAULT_SEED
     goldinput.value = '1'
     goldslider.value = '1'
+    blazeinput.value = '1'
+    blazeslider.value = '1'
 }
 
 async function fetchBarterTable() {
@@ -80,6 +113,8 @@ async function fetchBarterTable() {
 
 function refreshSeed() {
     refreshGold()
+    refreshBlaze()
+    refreshGravel()
 }
 
 function refreshGold() { 
@@ -91,7 +126,7 @@ function refreshGold() {
         add(res, nextBarter.item, nextBarter.amount)
     }
 
-    itemsout.innerHTML = ''
+    bartersout.innerHTML = ''
     for (let item in res) {
         if (filter.checked && !WHITELISTED_ITEMS.includes(item)) continue
         const row = document.createElement('tr')
@@ -101,7 +136,7 @@ function refreshGold() {
         amountdisp.innerText = res[item]
         row.appendChild(itemdisp)
         row.appendChild(amountdisp)
-        itemsout.appendChild(row)
+        bartersout.appendChild(row)
     }
 }
 
@@ -130,6 +165,44 @@ function getAmount(entry, random) {
         }
     }
     return amount
+}
+
+function refreshBlaze() {
+    const blazerandom = new JavaRandom(currseed)
+    const res = {}
+
+    for (let i=0; i < blaze; i++) {
+        const nextBlazeDrop = getNextBlazeDrop(blazerandom)
+        add(res, nextBlazeDrop.item, nextBlazeDrop.amount)
+    }
+
+    blazeout.innerHTML = ''
+    for (let item in res) {
+        const row = document.createElement('tr')
+        const itemdisp = document.createElement('td')
+        const amountdisp = document.createElement('td')
+        itemdisp.innerText = item
+        amountdisp.innerText = res[item]
+        row.appendChild(itemdisp)
+        row.appendChild(amountdisp)
+        blazeout.appendChild(row)
+    }
+}
+
+function getNextBlazeDrop(random) {
+    //assume no looting
+    //one function: set count 0 to 1
+    let amount = helperNextInt(random, 0n, 1n)
+    return {'item': 'minecraft:blaze_rod', 'amount': amount}
+}
+
+function refreshGravel() {
+    const gravelrandom = new JavaRandom(currseed)
+    let count = 0
+    do {
+        count++
+    } while (!(gravelrandom.nextFloat() < 0.1))
+    flint.textContent = count
 }
 
 function add(object, key, value) {

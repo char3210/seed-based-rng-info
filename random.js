@@ -36,4 +36,8 @@ class JavaRandom {
         }
         return r
     }
+
+    nextFloat() {//: Number
+        return Number(this.next(24n)) / (1 << 24)
+    }
 }

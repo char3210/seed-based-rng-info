@@ -6,7 +6,7 @@
 }
 
 .section {
-    width: 40%;
+    width: 30%;
     background-color: #ffffaa;
     border: 2px solid black;
     border-radius: 20px;
@@ -18,9 +18,5 @@ table, th, td {
 }
 
 table {
-    width: 80%
-}
-
-td {
-    width: 50%
+    width: 90%
 }

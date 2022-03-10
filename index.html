@@ -15,11 +15,11 @@
     <input type="text" id="seed" name="seed">
     <br>
     <br>
-    <div id="barters" class="section">
-        <h2>barters: </h2>
+    <div id="barters" class="section" style="float:left;margin-left:3%">
+        <h2>barters</h2>
 
         <label>gold: </label>
-        <input id="goldslider" type="range" min="1" max="200" value="1">
+        <input id="goldslider" type="range" min="0" max="200" value="1">
         <input id="goldinput" type="text" value="1">
         <br>
         <label>filter items</label>
@@ -28,16 +28,37 @@
             <thead>
                 <tr>
                     <th>Item</th>
-                    <th>Amount</th>
+                    <th style="width:25%">Amount</th>
                 </tr>
             </thead>
             <tbody id="items"></tbody>
         </table>
         <br>
     </div>
-    <br>
-    <div id="other" class="section">
+    <div id="other" class="section" style="float:right;margin-right:3%">
         <h2>other</h2>
+
+        <p>assuming no fortune, gravel to mine for flint:</p>
+        <p id="flint"></p>
+    </div>
+    <div id="blazes" class="section">
+        <h2>blazes</h2>
+        <p>ignoring looting, if a seed has looting i might add it but at the same time if you have looting then drop rates probably are not a problem</p>
+
+        <label>killed: </label>
+        <input id="blazeslider" type="range" min="0" max="20" value="1">
+        <input id="blazeinput" type="text" value="1">
+        <br>
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th style="width:25%">Amount</th>
+                </tr>
+            </thead>
+            <tbody id="rods"></tbody>
+        </table>
+        <br>
     </div>
     <script src="random.js"></script>
     <script src="script.js"></script>
