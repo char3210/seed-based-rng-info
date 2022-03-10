@@ -1,10 +1,20 @@
 "use strict";
 
 const DEFAULT_SEED = '16796183546'
+const WHITELISTED_ITEMS = [
+    'minecraft:obsidian', 
+    'minecraft:ender_pearl', 
+    'minecraft:string', 
+    'minecraft:glowstone_dust', 
+    'minecraft:crying_obsidian', 
+    'minecraft:potion',
+    'minecraft:splash_potion'
+]
 
 const seedinput = document.getElementById("seed")
 const goldinput = document.getElementById("goldinput")
 const goldslider = document.getElementById("goldslider")
+const filter = document.getElementById("filter")
 const itemsout = document.getElementById("items")
 
 let entries
@@ -44,6 +54,10 @@ goldslider.addEventListener('input', () => {
     refreshGold()
 })
 
+filter.addEventListener('input', () => {
+    refreshGold()
+})
+
 async function load() {
     clearInputs()
     await fetchBarterTable()
@@ -79,6 +93,7 @@ function refreshGold() {
 
     itemsout.innerHTML = ''
     for (let item in res) {
+        if (filter.checked && !WHITELISTED_ITEMS.includes(item)) continue
         const row = document.createElement('tr')
         const itemdisp = document.createElement('td')
         const amountdisp = document.createElement('td')
