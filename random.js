@@ -9,6 +9,8 @@ function initialScramble(seed) {
 }
 
 class JavaRandom {
+    seed
+
     constructor(seed) {
         this.seed = initialScramble(seed)
     }
@@ -27,12 +29,12 @@ class JavaRandom {
         
         let r = this.next(31n); //random number 0 to 2^31-1
         let m = bound - 1n;
-        if ((bound & m) == 0)  // i.e., bound is a power of 2
+        if ((bound & m) == 0n)  // i.e., bound is a power of 2
             r = ((bound * r) >> 31n); // return (r << log(bound)) >> 31, or highest order log(bound) bits of r
         else {
             for (let u = r;
                 u - (r = u % bound) + m < 0;
-                u = next(31));
+                u = this.next(31));
         }
         return r
     }
