@@ -19,7 +19,9 @@
 }
 
 .section {
+    margin: 10px;
     width: 30%;
+    min-width: 350px;
     background-color: #b1ffd8;
     border-radius: 20px;
     box-shadow: 2px 2px 5px gray;
