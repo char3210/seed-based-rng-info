@@ -1,6 +1,6 @@
 "use strict";
 
-const DEFAULT_SEED = '7957589283'
+const DEFAULT_SEED = '426434589720285917'
 const WHITELISTED_ITEMS = [
     'minecraft:obsidian', 
     'minecraft:ender_pearl', 
