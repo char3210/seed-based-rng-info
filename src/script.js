@@ -26,9 +26,10 @@ const blazelist = document.getElementById("blazelist")
 const flint = document.getElementById("flint")
 const flintlist = document.getElementById("flintlist")
 
-let entries
+let barterLists
+let blazeLists
 
-let currseed = BigInt(DEFAULT_SEED)
+let currseed = toScoreboardSeed(BigInt(DEFAULT_SEED))
 let gold = 1
 let blaze = 1
 
@@ -39,6 +40,8 @@ seedinput.addEventListener('input', () => {
     }
 
     currseed = tempseed
+    currseed = toScoreboardSeed(currseed)
+
     refreshSeed()
 })
 
@@ -92,7 +95,8 @@ blazeslider.addEventListener('input', () => {
 
 async function load() {
     clearInputs()
-    await fetchBarterTable()
+    await fetchBarterLists()
+    await fetchBlazeLists()
     refreshSeed()
 }
 
@@ -102,6 +106,16 @@ function clearInputs() {
     goldslider.value = '1'
     blazeinput.value = '1'
     blazeslider.value = '1'
+}
+
+async function fetchBarterLists() {
+    const response = await fetch('tradelists.json')
+    barterLists = (await response.json())["table"]
+}
+
+async function fetchBlazeLists() {
+    const response = await fetch('blazelists.json')
+    blazeLists = (await response.json())["table"]
 }
 
 async function fetchBarterTable() {
@@ -119,13 +133,12 @@ function refreshSeed() {
     refreshGravel()
 }
 
-function refreshGold() { 
-    const goldrandom = new JavaRandom(currseed)
+function refreshGold() {
     const res = {}
 
     for (let i=0; i < gold; i++) {
-        const nextBarter = getNextBarter(goldrandom)
-        add(res, nextBarter.item, nextBarter.amount)
+        const nextBarter = barterLists[Number(currseed)][i % 250]
+        add(res, nextBarter.id, nextBarter.Count)
     }
 
     bartersout.innerHTML = ''
@@ -170,19 +183,19 @@ function getAmount(entry, random) {
 }
 
 function refreshBlaze() {
-    const blazerandom = new JavaRandom(currseed)
     const res = {}
 
     blazelist.replaceChildren()
     blazelist.appendChild(createIcon('img/iron_sword.png'))
     for (let i=0; i < blaze; i++) {
-        const nextBlazeDrop = getNextBlazeDrop(blazerandom)
-        if (nextBlazeDrop.amount) {
+        const nextBlazeMultiplier = blazeLists[Number(currseed)][i % 250]
+        const dropped = Math.floor(nextBlazeMultiplier * 2 / 1000)
+        if (dropped) {
             blazelist.appendChild(createIcon('img/blazewithrod.png', 'drop'))
         } else {
             blazelist.appendChild(createIcon('img/blaze.png', 'no drop'))
         }
-        add(res, nextBlazeDrop.item, nextBlazeDrop.amount)
+        add(res, "minecraft:blaze_rod", dropped)
     }
 
     blazeout.innerHTML = ''
@@ -260,6 +273,19 @@ function parseLong(str) {
         return null
     }
     return res
+}
+
+function toScoreboardSeed(input) {
+    input = input & 0xffffffffn //cast to scoreboard value (but unsigned but should be fine when %=128 hopefully)
+    //wait omg i think that only works because 128 is a power of 2 
+    //yeah lmao
+    //might as well be safe
+    if (input > 2n**31n-1n) {
+        input -= 2n**32n
+    }
+    input %= 128n
+    if (input < 0) input += 128n
+    return input
 }
 
 load()
